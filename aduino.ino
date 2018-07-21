@@ -1,12 +1,18 @@
 #include <SoftwareSerial.h>
+#include <Servo.h>
+#include "DHT.h"
+#define DHTPIN 4
+#define DHTTYPE DHT11
 #define SW 8
-#define LED 6
+#define LED 5
+#define trigger_pin 7
+#define echo_pin 6 
+#define servo 
 SoftwareSerial se_read(12, 13); // write only
 SoftwareSerial se_write(10, 11); // read only
 
 struct ProjectData {
   int32_t rain_status;
-  int32_t light_status;
   float temp;
   float humid;
   int32_t finish;
@@ -40,6 +46,10 @@ void setup() {
   se_read.begin(38400);
   se_write.begin(38400);
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(trigger_pin, OUTPUT);
+  pinMode(echo_pin, INPUT);
+  myservo.attach(servo);
+  myservo.write(0);
   while (!se_read.isListening()) {
     se_read.listen();
   }
@@ -56,6 +66,18 @@ char cur_data_header = 0;
 char buffer[256];
 int8_t cur_buffer_length = -1;
 int32_t b = -1;
+
+
+int count_start, count_finish;
+long duration, cm, floor_length;
+long microsecondsToCentimeters(long microseconds)
+{
+  return microseconds / 29 / 2;  
+}
+Servo myservo;
+int door = 0;
+DHT dht(DHTPIN, DHTTYPE);
+
 void loop() {
   uint32_t cur_time = millis();
   //send to nodemcu
@@ -78,9 +100,39 @@ void loop() {
 
     //write code here//
 
+  /////////// COUNTING BY ULTRASONIC /////////
+  digitalWrite(trigger_pin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigger_pin, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(trigger_pin, LOW);
+  duration = pulseIn(echo_pin, HIGH);
+  cm = microsecondsToCentimeters(duration);
+  if (cm < 10) {
+    count_start++;
+    project_data.start = count_start;
+  }
+  // Serial.print(cm);
+  // Serial.println("cm");
+  // Serial.print(count);
+  // Serial.println("count");
+  delay(2000);
 
+  /////////// HUMIDITY /////////
+  float h = dht.readHumidity();
+  project_data.humid = h;
+  float t = dht.readTemperature();
+  project_data.temp = t;
 
-
+  /////////// DROP THE CLOTHES /////////
+  if (h<80) {
+    myservo.write(90);
+    count_finish++;
+    project_data.finish = count_finish;
+    delay(1000);
+  }
+  // else motor working
+  
 
 
     //write code here//
@@ -159,4 +211,3 @@ void loop() {
     }
   }
 }
-
