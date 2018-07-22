@@ -8,7 +8,9 @@
 
 #define DHTTYPE DHT11
 
-#define SW 7
+#define SW_1 7
+
+#define SW_2 8
 
 //#define LED 5
 
@@ -20,9 +22,9 @@
 
 #define rainPin A0
 
-#define MOTORA1 9
+#define MOTORA1 6
 
-#define MOTORA2 10
+#define MOTORA2 5
 
 #define LDR 17
 
@@ -112,7 +114,7 @@ void setup()
 
 {
   // put your setup code here, to run once:
-
+  
   Serial.begin(115200);
 
   se_read.begin(38400);
@@ -127,7 +129,7 @@ void setup()
 
   myservo.attach(servo);
 
-  myservo.write(170);
+  myservo.write(90);
 
   while (!se_read.isListening())
 
@@ -137,7 +139,9 @@ void setup()
 
   }
 
-  pinMode(SW, INPUT);
+  pinMode(SW_1, INPUT);
+
+  pinMode(SW_2, INPUT);
 
   //  pinMode(LED, OUTPUT);
 
@@ -203,43 +207,36 @@ int ldr = -1;
 
 
 
+
 void loop()
 
 {
 
   uint32_t cur_time = millis();
 
-  analogWrite(MOTORA1 , 125);
-
-  //send to nodemcu
-
-  /*
-    int a = digitalRead(SW);
-    if(a == 0){
-     Serial.println("Press");
-     b*=-1;
-     delay(500);
-    }
-    project_data.plus = b;
-    if(server_data.plus == 1){
-     digitalWrite(LED,HIGH);
-    }
-    else{
-     digitalWrite(LED,LOW);
-    }
-  */
-
-
+  //analogWrite(MOTORA1 , 125);
+  
+  //send to nodemcu//
 
   //write code here//
 
   //////////// Switch read //////////
 
-  /*
-    s = digitalRead(SW);
-    Serial.print("Switch : ");
-    Serial.println(s);
-  */
+  
+
+    int s1 = digitalRead(SW_1);
+
+    Serial.print("Switch 1 : ");
+
+    Serial.println(s1);
+
+    int s2 = digitalRead(SW_2);
+
+    Serial.print("Switch 2 : ");
+
+    Serial.println(s2);
+
+  
 
 
 
@@ -259,7 +256,7 @@ void loop()
 
   cm = microsecondsToCentimeters(duration);
 
-  if (cm < 10)
+  if (cm < 6)
 
   {
 
@@ -427,25 +424,6 @@ void loop()
 
               //use data to control sensor
 
-              /*
-                    Serial.print("temp status: ");
-                    Serial.println(data->temp);
-                    Serial.print("light: ");
-                    Serial.println(data->light_lux);
-                    Serial.print("sound status: ");
-                    Serial.println(data->sound);
-                    Serial.print("door: ");
-                    Serial.println(data->door);
-                    Serial.print("PLUS: ");
-                    Serial.println(data->plus);
-                    if(data->door == 1) {
-                    digitalWrite(LED_BUILTIN, HIGH);
-                    } else {
-                    digitalWrite(LED_BUILTIN, LOW);
-                    }
-                    server_data.plus = data->plus;
-              */
-
               Serial.print("drop auto status: ");
 
               Serial.println(data->drop_auto_status);
@@ -466,7 +444,7 @@ void loop()
 
               //write code here//
 
-              if (data->drop_status == 1)
+              if (data->drop_status == 0)
 
               {
 
@@ -474,17 +452,13 @@ void loop()
 
                 Serial.println("DROP");
 
-                myservo.write(55);
-
-                delay(1500);
-
                 myservo.write(0);
 
                 delay(1000);
 
-                myservo.write(170);
+                myservo.write(60);
 
-                delay(1000);
+                delay(3000);
 
                 count_finish++;
 
@@ -551,11 +525,9 @@ void loop()
 
                   Serial.println("MOVE AROUND");
 
-                  analogWrite(MOTORA1, 120);
+                  //analogWrite(MOTORA1, 120);
 
-                  delay(400);
-                  
-                  analogWrite(MOTORA1, LOW);
+                  delay(2000);
 
                 }
 
@@ -567,7 +539,7 @@ void loop()
 
 
 
-              if (rain == 0 && rain_count < count_finish - count_start)
+              if (rain == 0 && rain_count < count_start - count_finish)
 
               {
 
@@ -575,7 +547,9 @@ void loop()
 
                 //Serial.println("255");
 
-                analogWrite(MOTORA1 , 125);
+                //analogWrite(MOTORA1 , 125);
+
+                //analogWrite(MOTORA2 , LOW);
 
                 //Serial.println("100");
 
@@ -599,10 +573,9 @@ void loop()
 
 
 
-                analogWrite(MOTORA1, LOW);
+                //analogWrite(MOTORA1, LOW);
 
-
-
+                analogWrite(MOTORA2, LOW);
               }
 
 
@@ -628,8 +601,11 @@ void loop()
 
 
                 /*digitalWrite(MOTORB1 , HIGH);
+
                   digitalWrite(MOTORB2 , LOW);
+
                   analogWrite(MOTORA1 , 255);
+
                   analogWrite(MOTORA2 , LOW);*/
 
 
@@ -670,7 +646,7 @@ void loop()
 
               {
 
-                analogWrite(MOTORA1, LOW);
+                //analogWrite(MOTORA1, LOW);
 
               }
 
@@ -686,7 +662,7 @@ void loop()
 
                 Serial.println("255");
 
-                analogWrite(MOTORA1 , 125);
+                //analogWrite(MOTORA1 , 125);
 
                 Serial.println("100");
 
@@ -700,7 +676,7 @@ void loop()
 
 
 
-                analogWrite(MOTORA1, LOW);
+               // analogWrite(MOTORA1, LOW);
 
 
 
