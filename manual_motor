@@ -1,0 +1,67 @@
+#include <Servo.h>
+#include "DHT.h"
+#define DHTPIN 4
+#define DHTTYPE DHT11 // DHT 11
+DHT dht(DHTPIN, DHTTYPE);
+
+#define servo 9
+Servo myservo;
+
+#define MOTORA1 6
+#define MOTORA2 5
+
+#define SW1 7
+#define SW2 8
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(MOTORA1, OUTPUT);
+  pinMode(MOTORA2, OUTPUT);
+  pinMode(SW1, INPUT);
+  pinMode(SW2, INPUT);
+  myservo.attach(servo);
+  myservo.write(30);
+}
+
+int s1, s2;
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  s1 = digitalRead(SW1);
+  Serial.print("s1 : ");
+  Serial.println(s1);
+  //delay(500);
+  if (s1 == 0) {
+    Serial.println("USE");
+    analogWrite(MOTORA1 , 125);
+    analogWrite(MOTORA2 , LOW);
+    Serial.println("FINISH");
+    //delay(5000);
+  }
+  else {
+    analogWrite(MOTORA1 , LOW);
+    analogWrite(MOTORA2 , LOW);
+  }
+  
+    //float h = dht.readHumidity();
+    //if (not (isnan(h))) {
+    //Serial.println("Failed to read from DHT");
+    s2=digitalRead(SW2);
+
+    Serial.println(s2);
+    //delay(3000);
+    ///Serial.print("Humidity : ");
+    ///Serial.println(h);
+    if (s2 == 0) {
+    myservo.write(40);
+    delay(2000);
+    myservo.write(0);
+    delay(1000);
+    myservo.write(170);
+    delay(1000);
+    //}
+    }
+  
+
+}
